@@ -1,0 +1,14 @@
+test_mode=true
+algorithm_type=nn
+time_max=15
+dynamic_tabu_list=true
+tabu_list_size=3
+max_iter_no_improve=50
+procent_opt=0.9
+genNeighbour=swap
+input_file=data.txt
+output_file=results.csv
+name=test_instance
+display_results=false
+show_progress=false
+

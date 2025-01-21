@@ -1,0 +1,222 @@
+test_mode  ////// true dla automatycznych testow false dla recznego
+algorithm_type // algorytm random albo nn dla rozwiazania poczatkowego
+dynamic_tabu_list // czy dynamiczna lista tabu true albo false generowana na podstaiw rozmiaru grafu
+procent_opt // procent optymalnego rozwiazania
+time_max// czas w minutach
+tabu_list_size // rozmiar listy tabu
+max_iter_no_improve // maksymalna liczba iteracji bez poprawy
+genNeighbour // rodzaj generowania sasiada swap albo insert
+input_file // plik wejsciowy
+output_file // plik wyjsciowy
+name=test_instance // nazwa instancji
+display_results // czy wyswietlac wyniki true albo false
+show_progress // czy wyswietlac postep true albo false
+
+
+
+kadencje co to i jak działa w moim kodzie
+ocena ruchu który został wykonany mamy rozwiązanie tworzymy rozwiązanie
+jak można przeglądać otoczenie i jak je zmieniam
+kryterium aspiracji co to na czym polega i jak u mnie jest
+zdarzenie kytycze co to i jak jest u mnie
+warunek stopu  czas liczba iteracji  jak jest u mnie
+kryteriuma aspiracji  co to i jak wygląda u mnie
+asp + błąd pomiarowy
+ opt_cost=1776  top procent opt
+ wierzchołki poczatkowe???
+ funkcja oceny wartosci ruchu
+ lista tabu kryterium aspiaracji aspiracja+
+ dywersyfikacja i intensyfikacja
+ metoda zdarzen krytycznych
+ warunek stopu
+
+
+
+
+
+
+
+nn random
+
+
+funkcja oceny wartosci ruchu
+lista tabu kryterium aspiaracji aspiracja+
+dywersyfikacja i intensyfikacja
+metoda zdarzen krytycznych
+warunek stopu
+
+
+1. Ryzyko wejścia w cykl jest tym mniejsze, im dłuższe są kadencje.
+ad. 2. Możliwe jest badanie przestrzeni rozwiązań odległej od punktu 𝑥0.
+ad. 3. Możliwe jest blokowanie ruchów dających bardzo dobre rezultaty.
+
+Im większy rozmiar problemu, tym kadencje powinny być dłuższe.
+2. Im bardziej restrykcyjna jest lista tabu, czyli im mniejszy jest średnio współczynnik 𝑁′ 𝑥
+𝑁 𝑥
+, tym krótsze
+powinny być kadencje.
+3. Kadencje mogą choć nie muszą być stałe ani jednakowe dla każdego ruchu.
+4. Kadencje mogą być losowe – wybór z pewnego zakresu.
+5. Kadencje mogą być cykliczne – (12, 7, 4, 3, 1)
+6. Długość kadencji może zależeć od historii ruchu. Jeśli ruch powodował wpadanie w cykle bądź dawał
+małe poprawy, można go blokować na dłużej – dodanie funkcji kary.
+7. I generalnie. Im więcej wiemy o krajobrazie wartości funkcji celu (problemie), tym łatwiej jest szacować
+jakość ruchów i ich konsekwencje, a co za tym idzie ich przydatność – dodanie funkcji nagrody
+
+im krótsza kadencja, tym:
+• duże niebezpieczeństwo utknięcia (pozostania) w lokalnym ekstremum (-)
+• większa dokładność wyznaczania rozwiązania – Intensyfikacja (+)
+im dłuższa kadencje, tym:
+• możliwe gorsze znalezione rozwiązania – brak Intensyfikacji (-)
+• większy zakres przeszukiwania – Dywersyfikacja (+)
+...
+Generalnie i jak zawsze dla wszystkich metod metaheurystycznych.
+Ustalanie wartości parametrów, tzw. strojenie, polega na eksperymentalnym sprawdzaniu wpływu zmian
+wartości tych parametrów na złożoność obliczeniową i jakość uzyskiwanego rozwiązania ☺
+
+
+Kryterium aspiracji jest pewną regułą odstępstwa dla każdego rozwiązania 𝑥𝑘 ∈ 𝑁 𝑥𝑎 , która pozwala na
+wykonanie ruchu z 𝑥𝑎do 𝑥𝑘nawet, jeśli ruch jest na liście tabu (jest zakazany). Kryterium aspiracji anuluje
+zakaz ruchu wynikający z zasad listy tabu.
+…
+Kryterium aspiracji jest funkcją 𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑥𝑎, 𝑥𝑘 przyjmującą wartości 𝑡𝑟𝑢𝑒, 𝑓𝑎𝑙𝑠𝑒 .
+Jeżeli 𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑥𝑎, 𝑥𝑘 = 𝑡𝑟𝑢𝑒, ruch powodujący zmianę rozwiązania z 𝑥𝑎na 𝑥𝑘 jest dozwolony.
+W przeciwnym wypadku nie jest.
+
+
+𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑥𝑎, 𝑥𝑘 = 𝑡𝑟𝑢𝑒, jeżeli 𝑓 𝑥𝑘 < 𝑓 𝑥𝑜𝑝𝑡 * - ruch prowadzi do rozwiązania lepszego niż najlepsze
+znalezione do tej pory.
+𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑥𝑎, 𝑥𝑘 = 𝑡𝑟𝑢𝑒, jeżeli 𝑚𝑒𝑣𝑎𝑙 𝑥𝑎, 𝑥𝑘 ≥ 𝛼 – wartość ruchu jest większa od wartości parametru 𝛼.
+…
+Każde inne, które wynika z doświadczenia, struktury problemu, przebiegu algorytmu i powtarzalnie przynosi
+pozytywne efekty.
+…
+Definiując kryterium aspiracji należy uwzględnić jego obecność w definicji otoczenia:
+𝑁
+" 𝑥𝑎 = 𝑥𝑘 | 𝑥𝑘 ∈ 𝑁 𝑥𝑎 ∩ 𝑥𝑘 ∉ 𝑡𝑎𝑏𝑢𝑙𝑖𝑠𝑡 ∪ 𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑥𝑎, 𝑥𝑘 = 𝑡𝑟𝑢�
+
+
+wygeneruj rozwiązanie 𝑥
+0 ∈ 𝑆
+∗ 𝑥𝑜𝑝𝑡 ⟵ 𝑥
+0
+, 𝑥𝑎 ⟵ 𝑥
+0
+, 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡 ⟵ ∅
+repeat
+znajdź w 𝑁
+" 𝑥𝑎 takie 𝑥𝑘, dla którego 𝑀𝑉𝑎𝑙 𝑥𝑎, 𝑥𝑘 jest największa
+𝑥𝑎 ⟵ 𝑥𝑘
+if 𝑓 𝑥𝑎 > 𝑓 𝑥𝑜𝑝𝑡 then 𝑥𝑜𝑝𝑡 ⟵ 𝑥𝑎
+zweryfikuj 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡
+do 𝑒𝑙𝑒𝑚𝑒𝑛𝑡 ∈ 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡 ڀ
+− − 𝑘𝑎𝑑𝑒𝑛𝑐𝑗𝑎𝑖
+if 𝑘𝑎𝑑𝑒𝑛𝑐𝑗𝑎𝑖 = 0 then usuń element z 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡
+until warunek zakończeni
+
+
+Jeśli coś jest dobre, to może być dobre z plusem ☺
+Podobnie, jak w przypadku przeszukiwania otoczenia (greedy, steepest, random), można zastosować pewną
+strategię wyboru rozwiązania, która pozwoli na zmniejszenie liczby sprawdzanych rozwiązań należących do
+zbioru 𝑁
+" 𝑥𝑎 .
+Taka strategia nazywana jest aspiracją plus, czyli:
+• przeglądamy zawsze mniej niż 𝑚𝑖𝑛𝑀 i nie więcej niż 𝑚𝑎𝑥𝑀 rozwiązań należących do 𝑁
+" 𝑥𝑎 .
+• jeżeli znajdziemy 𝑥𝑎 ∈ 𝑁
+" 𝑥𝑎 takie, że 𝑀𝑉𝑎𝑙 ≥ 𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 , to przeglądamy jeszcze tylko następne 𝑃𝑙𝑢𝑠
+rozwiązań, pamiętając o założeniu z punktu 1.,
+• przechodzimy do tego rozwiązania 𝑥𝑘 (spośród przeglądniętych), dla którego wartość 𝑀𝑉𝑎𝑙 𝑥𝑎, 𝑥𝑘 jest
+największa.
+dr inż. Tomasz Kapłon
+W04ITE-SM0066G r.a. 2024/2025
+06/12/24
+23 / 99
+Tabu search
+Strategia wyboru rozwiązań z kryterium aspiracji
+Jeżeli po sprawdzeniu 𝐹𝑖𝑟𝑠𝑡 ≤ 𝑚𝑎𝑥𝑀 ruchów zostało znalezione rozwiązanie przekraczające, co do
+𝑀𝑉𝑎𝑙 𝑥𝑎, 𝑥𝑘 pewien ustalony próg (𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛), czyli 𝑀𝑉𝑎𝑙 𝑥𝑎, 𝑥𝑘 ≥ 𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛, to przeglądamy jeszcze
+𝑚𝑖𝑛 𝑚𝑎𝑥 𝐹𝑖𝑟𝑠𝑡 + 𝑃𝑙𝑢𝑠, 𝑚𝑖𝑛𝑀 , 𝑚𝑎𝑥𝑀 rozwiązań.
+dr inż. Tomasz Kapłon
+W04ITE-SM0066G r.a. 2024/2025
+06/12/24
+𝐴𝑠𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛
+𝑀𝑉𝑎𝑙
+1 2 3 4 5 6 7 8 9 10 11
+𝐹𝑖𝑟𝑠𝑡 𝑚𝑖𝑛𝑀 𝑚𝑎𝑥𝑀
+𝑃𝑙𝑢𝑠
+24 / 99
+Tabu search
+Czego jeszcze brakuje?
+Tabu search jest metodą przeszukiwania lokalnego.
+Przestrzeń rozwiązań jest rozległa.
+Zastosowanie listy tabu, aspiracji i aspiracji plus zwiększa zakres eksplorowanej podprzestrzeni.
+Jednak nadal podprzestrzeń to część całości, zwłaszcza dla problemów NP.
+…
+Co należy jeszcze zrobić, aby zwiększyć możliwości metody TS w poszukiwaniu OPT?
+…
+małe podpowiedzi:
+1. takie rozwiązanie było rozważane już przy okazji omawiania local-search, jest proste i (wybiegając nieco w przyszłość), udaje algorytmy populacyjne?
+2. było rozważane jako jedno z kryteriów zatrzymania w symulowanym wyżarzaniu.
+dr inż. Tomasz Kapłon
+W04ITE-SM0066G r.a. 2024/2025
+06/12/24
+25 / 99
+Tabu search
+Strategia dywersyfikacji
+Strategia dywersyfikacji pozwala na przeglądanie różnych obszarów przestrzeni rozwiązań.
+Działa poprzez dwie funkcje:
+metodę zdarzeń krytycznych 𝐶𝑟𝑖𝑡𝑖𝑐𝑎𝑙𝐸𝑣𝑒𝑛𝑡 przyjmującą wartości 𝑡𝑟𝑢𝑒, 𝑓𝑎𝑙𝑠𝑒 ;𝐶𝑟𝑖𝑡𝑖𝑐𝑎𝑙𝐸𝑣𝑒𝑛𝑡 = 𝑡𝑟𝑢𝑒, kiedy
+zaszły określone przesłanki wskazujące na konieczność wygenerowania nowego rozwiązania 𝑥
+0
+, np. :
+brak znalezienia lepszego rozwiązania przez 𝑘 kolejnych iteracji,
+wykonano 𝑘 kolejnych iteracji od wygenerowania rozwiązania 𝑥
+0
+,
+przez 𝑘 kolejnych iteracji 𝑥𝑎 znajduje się „blisko” rozwiązania 𝑥
+0
+.
+Wywoływana jest wtedy funkcji 𝑅𝑒𝑠𝑡𝑎𝑟𝑡, generująca nowe rozwiązanie 𝑥
+0
+. Funkcja 𝑅𝑒𝑠𝑡𝑎𝑟𝑡 powinna
+wykorzystywać informacje o sprawdzonych wcześniej fragmentach przestrzeni rozwiązań – najlepiej na
+podstawie znanego obrazu krajobrazu przestrzeni rozwiązań.
+dr inż. Tomasz Kapłon
+W04ITE-SM0066G r.a. 2024/2025
+06/12/24
+26 / 99
+Tabu search
+Wersja 4 (TS4)
+wygeneruj rozwiązanie 𝑥
+0 ∈ 𝑆
+∗ 𝑥𝑜𝑝𝑡 ⟵ 𝑥
+0
+, 𝑥𝑎 ⟵ 𝑥
+0
+, 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡 ⟵ ∅
+repeat
+znajdź w 𝑁
+" 𝑥𝑎 takie 𝑥𝑘, dla którego 𝑀𝑉𝑎𝑙 𝑥𝑎, 𝑥𝑘 jest największa
+𝑥𝑎 ⟵ 𝑥𝑘
+if 𝑓 𝑥𝑎 > 𝑓 𝑥𝑜𝑝𝑡 then 𝑥𝑜𝑝𝑡 ⟵ 𝑥𝑎
+zweryfikuj 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡
+do 𝑒𝑙𝑒𝑚𝑒𝑛𝑡 ∈ 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡 ڀ
+− − 𝑘𝑎𝑑𝑒𝑛𝑐𝑗𝑎𝑖
+if 𝑘𝑎𝑑𝑒𝑛𝑐𝑗𝑎𝑖 = 0 then usuń element z 𝑡𝑎𝑏𝑢_𝑙𝑖𝑠𝑡
+if 𝐶𝑟𝑖𝑡𝑖𝑐𝑎𝑙𝐸𝑣𝑒𝑛𝑡 = 𝑡𝑟𝑢𝑒 then 𝑥
+0 ⟵ 𝑅𝑒𝑠𝑡𝑎𝑟𝑡
+until warunek zakończenia
+dr inż. Tomasz Kapłon
+W04ITE-SM0066G r.a. 2024/2025
+06/12/24
+27 / 99
+Tabu search
+Podsumowanie
+Metoda Tabu search jest metodą poszukiwania lokalnego z elementami pozwalającymi na unikanie utykania w
+ekstremach lokalnych i przeszukiwania znaczącą większego obszaru przestrzeni rozwiązań niż metoda
+lokalnego przeszukiwania.
+Nie posiada „naturalnego” warunku zatrzymania. Trzeba go samodzielnie ustalić. Najczęściej jest to liczba
+wykonanych iteracji algorytmu. Mogą być również inne: czas, akceptowalność wyniku itd..
+Efektywność czasowa i jakościowa zależna jest od parametrów metody, które należy dobierać
+eksperymentalnie dla konkretnego problemu
