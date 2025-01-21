@@ -1,5 +1,5 @@
 test_mode=false
-algorithm_type=nn
+algorithm_type=random
 time_max=3
 dynamic_tabu_list=true
 tabu_list_size=3

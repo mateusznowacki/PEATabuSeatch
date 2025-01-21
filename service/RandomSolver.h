@@ -1,40 +1,24 @@
-#ifndef RANDOMSOLVER_H
-#define RANDOMSOLVER_H
+#ifndef RANDOM_SOLVER_H
+#define RANDOM_SOLVER_H
 
-#include "Graph.h"
 #include <vector>
-#include <string>
 #include <chrono>
 
-/*
- * Klasa RandomSolver implementuje algorytm losowy do rozwiązywania problemu komiwojażera (TSP).
- */
 class RandomSolver {
 public:
-    // Konstruktor
-    RandomSolver();
+    RandomSolver() = default;
 
-    // Metoda rozwiązująca problem TSP z limitem czasowym (w minutach) i opcjonalnym kosztem optymalnym
-    int solve(int timeLimitMinutes, int optimalCost);
+    // Rozwiązuje problem TSP dla grafu i zwraca najlepszą ścieżkę
+    std::vector<int> solve(const std::vector<std::vector<int>>& graph, int timeLimitMinutes);
 
-    // Funkcja zwracająca najlepszą ścieżkę jako ciąg znaków
-    std::string getBestPath() const;
-
-    // Funkcja zwracająca minimalny koszt znaleziony przez algorytm
+    // Getter dla minimalnego kosztu
     int getMinCost() const;
 
-    // Funkcja zwracająca czas wykonania algorytmu
-    std::chrono::duration<double> getExecutionTime() const;
-
 private:
-    // Funkcja do obliczania kosztu danej ścieżki
-    int calculatePathCost(const std::vector<int>& path);
+    int calculatePathCost(const std::vector<int>& path, const std::vector<std::vector<int>>& graph);
 
-    const Graph& graph;                        // Referencja do grafu
-    bool display;                              // Flaga kontrolująca wyświetlanie wyników
-    int minCost;                               // Minimalny znaleziony koszt
-    std::vector<int> bestPath;                 // Najlepsza znaleziona ścieżka
-    std::chrono::duration<double> executionTime; // Czas wykonania algorytmu
+    std::vector<int> bestPath; // Najlepsza ścieżka
+    int minCost = std::numeric_limits<int>::max(); // Minimalny koszt
 };
 
-#endif // RANDOMSOLVER_H
+#endif // RANDOM_SOLVER_H

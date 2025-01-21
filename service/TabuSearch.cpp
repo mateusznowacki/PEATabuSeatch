@@ -42,7 +42,6 @@ std::vector<int> TabuSearch::solve(
     int initialCost
 ) {
     // Inicjalizacja czasu startu i wektorów
-    startTime = std::chrono::steady_clock::now();
     std::vector<int> currentSolution = bestSolution;
     std::vector<int> bestOverallSolution = bestSolution;
     int currentCost = initialCost;
@@ -52,6 +51,7 @@ std::vector<int> TabuSearch::solve(
 
 
     // Główna pętla
+    startTime = std::chrono::steady_clock::now();
     while (!isTimeExceeded() && iterWithoutImprovement < maxIterNoImprove) {
         // Generowanie sąsiedztwa
         auto neighborhood = generateNeighborhood(currentSolution);
@@ -122,14 +122,24 @@ std::vector<int> TabuSearch::solve(
             iterWithoutImprovement = 0; // reset stagnacji
 
         }
-    }
 
-    // Debug: wynik końcowy
-    std::cout << "\n[DEBUG] Final best solution: ";
-    for (const auto& node : bestOverallSolution) {
-        std::cout << node << " ";
+
     }
-    std::cout << "\n[DEBUG] Final cost: " << bestCost << "\n";
+    // Na koniec obliczamy czas zakończenia i czas całego algorytmu
+    endTime = std::chrono::steady_clock::now();
+    // Zapisanie różnicy czasów w algorithmTime jako time_point (od epoki),
+    // co oznacza, że jeśli ktoś wywoła getAlgorithmTime(), to może zrobić:
+    //   auto duration = getAlgorithmTime().time_since_epoch();
+    //   std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms\n";
+    algorithmTime = std::chrono::steady_clock::time_point(endTime - startTime);
+
+
+    // // Debug: wynik końcowy
+    // std::cout << "\n[DEBUG] Final best solution: ";
+    // for (const auto& node : bestOverallSolution) {
+    //     std::cout << node << " ";
+    // }
+    // std::cout << "\n[DEBUG] Final cost: " << bestCost << "\n";
 
     return bestOverallSolution;
 }
@@ -191,4 +201,18 @@ bool TabuSearch::isTimeExceeded() {
     if (elapsedTime >= timeMax) {
     }
     return elapsedTime >= timeMax;
+}
+
+
+// Gettery czasu
+std::chrono::steady_clock::time_point TabuSearch::getStartTime()  {
+    return startTime;
+}
+
+std::chrono::steady_clock::time_point TabuSearch::getEndTime()  {
+    return endTime;
+}
+
+std::chrono::steady_clock::time_point TabuSearch::getAlgorithmTime()  {
+    return algorithmTime;
 }

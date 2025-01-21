@@ -32,6 +32,11 @@ public:
         int initialCost
     );
 
+    // Gettery czasu
+    std::chrono::steady_clock::time_point getStartTime() ;
+    std::chrono::steady_clock::time_point getEndTime() ;
+    std::chrono::steady_clock::time_point getAlgorithmTime() ;
+
 private:
     // Parametry konstruktora
     double procentOpt;            // NIEUŻYWANY w poniższej implementacji
@@ -43,6 +48,8 @@ private:
 
     // Zmienna pomocnicza do pomiaru czasu rozpoczęcia
     std::chrono::steady_clock::time_point startTime;
+    std::chrono::steady_clock::time_point endTime;
+    std::chrono::steady_clock::time_point algorithmTime;
 
     // Struktury wspomagające obsługę listy tabu
     std::queue<std::string> tabuList;         // Kolejka do przechowywania rozwiązań (hashów)

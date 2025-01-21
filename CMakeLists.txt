@@ -8,23 +8,14 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,16777216")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-add_executable(PEATabuSearch main.cpp
+add_executable(PEATabuSearch
+        service/main.cpp
         utils/ConsolePrinter.cpp
         utils/FileController.cpp
-        dto/DataDto.cpp
-        dto/DataDto.h
         dto/ConfigDataDto.cpp
-        dto/ConfigDataDto.h
-        service/Graph.cpp
-        dto/DataDto.cpp
-        dto/DataDto.h
-        utils/ConsolePrinter.cpp
         dto/ResultDataDto.cpp
-        dto/ResultDataDto.h
-        service/TabuSearch.cpp
-        service/TabuSearch.h
-        service/RandomSolver.h
-           service/TabuSearch.cpp
-        service/TabuSearch.cpp
+        dto/DataDto.cpp
+        service/NearestNeighbour.cpp
         service/RandomSolver.cpp
+        service/TabuSearch.cpp
 )
