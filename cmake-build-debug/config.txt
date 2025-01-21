@@ -1,6 +1,6 @@
 test_mode=false
 algorithm_type=nn
-time_max=15
+time_max=3
 dynamic_tabu_list=true
 tabu_list_size=3
 max_iter_no_improve=50

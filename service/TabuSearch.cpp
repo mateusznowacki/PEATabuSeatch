@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-// Pomocnicza funkcja do tworzenia "hasza" z wektora (rozwiązania)
+// Pomocnicza funkcja do tworzenia hasha (klucza) z wektora (rozwiązania)
 static std::string hashSolution(const std::vector<int>& solution) {
     std::ostringstream oss;
     for (int node : solution) {
@@ -32,9 +32,7 @@ TabuSearch::TabuSearch(
       currentTabuListSize(tabuListSize),
       iterWithoutImprovement(0)
 {
-    // UWAGA: Kod poniżej może zostać zmieniony zależnie od przyjętej strategii
-    // Dla przykładu, jeśli dynamicTabuList = true, możemy tu nic nie robić,
-    // bo i tak wielkość listy będzie modyfikowana w trakcie solve().
+    // UWAGA: procentOpt oraz dynamicTabuList aktualnie nie są wykorzystywane.
 }
 
 // Główna metoda rozwiązująca problem
@@ -50,38 +48,38 @@ std::vector<int> TabuSearch::solve(
     int currentCost = initialCost;
     int bestCost = initialCost;
 
+
+
+
     // Główna pętla
     while (!isTimeExceeded() && iterWithoutImprovement < maxIterNoImprove) {
-        // -------------------------
-        // 1. Sprawdź kryterium procentOpt
-        //    Jeśli bestCost spadnie poniżej procentOpt * initialCost,
-        //    można przerwać algorytm (np. wystarczająco dobry wynik).
-        if (bestCost <= procentOpt * initialCost) {
-            std::cout << "[DEBUG] Stop by procentOpt criterion: "
-                      << bestCost << " <= " << procentOpt * initialCost << "\n";
-            break;
-        }
-        // -------------------------
-
-        // 2. Generowanie sąsiedztwa
+        // Generowanie sąsiedztwa
         auto neighborhood = generateNeighborhood(currentSolution);
+
 
         int bestNeighborCost = std::numeric_limits<int>::max();
         std::vector<int> bestNeighbor;
 
-        // 3. Przeglądanie wygenerowanego sąsiedztwa
+
+
+        // Przeglądanie wygenerowanego sąsiedztwa
         for (size_t nIdx = 0; nIdx < neighborhood.size(); ++nIdx) {
             const auto& neighbor = neighborhood[nIdx];
 
-            // Obliczamy koszt sąsiada (z domknięciem cyklu)
             int neighborCost = 0;
             for (size_t i = 0; i < neighbor.size() - 1; ++i) {
                 neighborCost += graph[neighbor[i]][neighbor[i + 1]];
             }
-            neighborCost += graph[neighbor.back()][neighbor.front()]; // powrót do startu
+            // DODAJEMY POWRÓT DO STARTU
+            neighborCost += graph[neighbor.back()][neighbor.front()];
+
+
+
 
             bool tabuStatus = isTabu(neighbor);
             bool aspiration = (neighborCost < bestCost);
+
+
 
             // Kryteria tabu i aspiracji
             if ((!tabuStatus || aspiration) && neighborCost < bestNeighborCost) {
@@ -90,7 +88,7 @@ std::vector<int> TabuSearch::solve(
             }
         }
 
-        // 4. Aktualizacja rozwiązania
+        // Aktualizacja rozwiązania
         if (!bestNeighbor.empty()) {
             currentSolution = bestNeighbor;
             currentCost = bestNeighborCost;
@@ -104,46 +102,25 @@ std::vector<int> TabuSearch::solve(
                 bestOverallSolution = currentSolution;
                 iterWithoutImprovement = 0; // reset licznika
 
-                // Jeśli dynamicTabuList jest włączone,
-                // możemy np. zmniejszyć rozmiar listy tabu,
-                // bo właśnie znaleźliśmy lepsze rozwiązanie:
-                if (dynamicTabuList) {
-                    // Przykład: minimalnie 5, a tak normalnie = tabuListSize
-                    currentTabuListSize = std::max(5, tabuListSize - 2);
-                }
             } else {
                 ++iterWithoutImprovement;
-
-                // Jeśli dynamicTabuList jest włączone i z rzędu nie znajdujemy poprawy,
-                // możemy np. zwiększać rozmiar listy tabu:
-                if (dynamicTabuList) {
-                    // Prosty przykład: zwiększ rozmiar, jeśli jest sporo stagnacji
-                    if (iterWithoutImprovement % 5 == 0) {
-                        currentTabuListSize += 1;
-                    }
-                }
             }
         }
 
-        // 5. Dywersyfikacja: proste losowe przetasowanie po "x" stagnacjach
+        // Dywersyfikacja: proste losowe przetasowanie po "x" stagnacjach
         if (iterWithoutImprovement > 10) {
             std::random_device rd;
             std::mt19937 g(rd());
             std::shuffle(currentSolution.begin(), currentSolution.end(), g);
 
-            // Oblicz koszt po przetasowaniu (z domknięciem cyklu)
+            // Oblicz koszt po przetasowaniu
             currentCost = 0;
             for (size_t i = 0; i < currentSolution.size() - 1; ++i) {
                 currentCost += graph[currentSolution[i]][currentSolution[i + 1]];
             }
-            currentCost += graph[currentSolution.back()][currentSolution.front()];
 
             iterWithoutImprovement = 0; // reset stagnacji
 
-            // Można też w ramach dywersyfikacji zmienić listę tabu
-            if (dynamicTabuList) {
-                currentTabuListSize = tabuListSize; // np. przywróć do wartości bazowej
-            }
         }
     }
 
@@ -211,5 +188,7 @@ void TabuSearch::updateTabuList(const std::vector<int>& solution) {
 bool TabuSearch::isTimeExceeded() {
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::minutes>(currentTime - startTime).count();
-    return (elapsedTime >= timeMax);
+    if (elapsedTime >= timeMax) {
+    }
+    return elapsedTime >= timeMax;
 }

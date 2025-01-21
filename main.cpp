@@ -43,12 +43,12 @@ int main()
             /////////////poprawic to bestSolution
             if (configData.getAlgorithmType() == "nn")
             {
-                bestSolution = {0, 1, 2, 3, 4, 5, 6};
+                bestSolution = {0, 1, 2, 3, 4, 5};
                 // bestSolution = nearestNeighbour.getBestPath(graph);
             }
             else if (configData.getAlgorithmType() == "random")
             {
-                bestSolution = {0, 1, 2, 3, 4, 5, 6};
+                bestSolution = {0, 1, 2, 3, 4, 5};
                 //  bestSolution = random.getBestPath(graph);
             }
 
