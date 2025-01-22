@@ -7,3 +7,4 @@
 96 38 82 24 9 -1
 
 sum_min=150
+optimal_path=

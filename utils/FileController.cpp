@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <stdexcept>
+#include <bits/regex.h>
 
 
 std::vector<std::vector<int>> FileController::readGraphFromFile(const std::string& filename, bool testMode)
@@ -156,3 +157,118 @@ ConfigDataDto FileController::readConfigFile(const char* filename) {
     return config;
 }
 
+// Funkcja do sprawdzania istnienia pliku
+bool FileController::fileExists(const std::string &fileName) {
+    std::ifstream file(fileName);
+    return file.good();
+}
+
+// void FileController::saveResultsToCSV(
+//     const std::string &outputFileName,
+//     const std::string &instanceName,
+//     int optimalCostFromFile,
+//     const std::vector<int> &optimalPathFromFile,
+//     int foundCost,
+//     const std::vector<int> &foundPath,
+//     std::chrono::steady_clock::time_point startTime,
+//     std::chrono::steady_clock::time_point endTime)
+// ) {
+//     // Sprawdzenie, czy plik już istnieje
+//     bool exists = fileExists(outputFileName);
+//
+//     // Otwórz plik w trybie dołączania, jeśli istnieje; w trybie zapisu, jeśli nie istnieje
+//     std::ofstream file(outputFileName, std::ios::app);
+//
+//     // Sprawdzenie, czy plik został poprawnie otwarty
+//     if (!file.is_open()) {
+//         std::cerr << "Nie można otworzyć pliku do zapisu: " << outputFileName << std::endl;
+//         return;
+//     }
+//
+//     // Zapis nagłówka, jeśli plik nie istnieje (tworzony po raz pierwszy)
+//     if (!exists) {
+//         file << "Nazwa instancji,Optymalny koszt,Optymalna ścieżka,"
+//              << "Znaleziony koszt,Znaleziona ścieżka,Czas wykonania (ms),"
+//              << "Błąd bezwzględny,Błąd względny (%),"
+//              << "Procent rozwiazania optymalnego (%)\n";
+//     }
+//
+//     // Obliczanie czasu wykonania w milisekundach
+//     auto executionTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+//
+//     // Obliczanie błędów
+//     int absoluteError = std::abs(foundCost - optimalCostFromFile);
+//     double relativeError = (static_cast<double>(absoluteError) / optimalCostFromFile) * 100;
+//     double percentageOfOptimal = (static_cast<double>(foundCost) / optimalCostFromFile) * 100;
+//
+//     // Konwersja ścieżek do tekstu
+//     std::ostringstream optimalPathStream;
+//     for (size_t i = 0; i < optimalPathFromFile.size(); ++i) {
+//         optimalPathStream << optimalPathFromFile[i];
+//         if (i != optimalPathFromFile.size() - 1) {
+//             optimalPathStream << " -> ";
+//         }
+//     }
+//     std::ostringstream foundPathStream;
+//     for (size_t i = 0; i < foundPath.size(); ++i) {
+//         foundPathStream << foundPath[i];
+//         if (i != foundPath.size() - 1) {
+//             foundPathStream << " -> ";
+//         }
+//     }
+//
+//     file << std::fixed << std::setprecision(10);
+//
+//     // Zapis danych w nowym wierszu
+//     file << instanceName << ","
+//          << optimalCostFromFile << ",\""
+//          << optimalPathStream.str() << "\","
+//          << foundCost << ",\""
+//          << foundPathStream.str() << "\","
+//          << executionTime << ","
+//          << absoluteError << ","
+//          << relativeError << ","
+//          << percentageOfOptimal << "\n";
+//
+//     // Zamknięcie pliku
+//     file.close();
+}
+
+std::vector<int> FileController::readOptimalPath(const char* fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        throw std::runtime_error("Nie można otworzyć pliku: ");
+    }
+
+    std::vector<int> optimalPath;
+    std::string line;
+    std::regex optimalPathRegex(R"(optimal_path\s*=\s*\[?\s*([\d\s,]+)\]?)"); // Obsługuje różne formaty
+
+    while (std::getline(file, line)) {
+        std::smatch match;
+        if (std::regex_search(line.begin(), line.end(), match, optimalPathRegex)) {
+            // Dopasowanie wyrażenia w linii tekstu
+            std::string pathString = match[1].str();
+            // Parsowanie liczb w ścieżce
+            std::istringstream iss(pathString);
+            int number;
+            char separator; // Dla przecinków i spacji
+            while (iss >> number) {
+                optimalPath.push_back(number);
+                iss >> separator; // Pomija przecinki
+            }
+        }
+
+
+            break; // Zatrzymujemy, gdy znajdziemy optymalną ścieżkę
+        }
+    }
+
+    file.close();
+
+    if (optimalPath.empty()) {
+        throw std::runtime_error("Nie znaleziono klucza 'optimal_path' w pliku: ");
+    }
+
+    return optimalPath;
+}

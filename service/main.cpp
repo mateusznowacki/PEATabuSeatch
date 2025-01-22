@@ -19,7 +19,7 @@ int main()
 
     ConfigDataDto configData;
     std::vector<std::vector<int>> graph;
-    std::vector<int> bestSolution;
+    std::vector<int> initial_solution;
     int cost;
 
 
@@ -41,55 +41,65 @@ int main()
 
             if (configData.getAlgorithmType() == "nn")
             {
-                bestSolution = nearestNeighbour.solve(graph);
-                cost = nearestNeighbour.getMinCost();
+                initial_solution = nearestNeighbour.solve(graph);
             }
             else if (configData.getAlgorithmType() == "random")
             {
-                bestSolution = randomSolver.solve(graph,1);
-                cost = randomSolver.getMinCost();
+                initial_solution = randomSolver.solve(graph, 1);
             }
 
+            cost = fileController.readCost("config.txt", false);
 
-            tabuSearch.solve(graph, bestSolution, cost);
+            if (cost == INT32_MAX)
+            {
+                cost = nearestNeighbour.getMinCost();
+            }
+
+            std::vector<int> bestFoundPath = tabuSearch.solve(graph, initial_solution, cost);
+
 
             //wyswietl wyniki  plus zapisz do pliku
             // consolePrinter.printEndInfo(tabuSearch.getMinCost(), tabuSearch.getBestPath(), tabuSearch.getExecutionTime());
-            //  fileController.saveResultsToCSV();
+            // fileController.saveResultsToCSV(configData.getOutputFile(), configData.getInputFile(),
+            //                                 cost, fileController.readOptimalPath(configData.getInputFile()),
+            //                                 tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getStartTime(),
+            //                                 tabuSearch.getEndTime());
+
+            }
+            else
+            if (configData.getTestMode() == true)
+            {
+                TabuSearch tabuSearch(configData.getProcentOpt(), configData.getMaxIterNoImprove(),
+                                      configData.getDynamicTabuList(), configData.getTabuListSize(),
+                                      configData.getTimeMax(),
+                                      configData.getGenNeighbour());
+
+                //dodac wczytywanie z pliku
+            }
         }
-        else if (configData.getTestMode() == true)
+
+        catch
+        (std::exception & e)
         {
-            TabuSearch tabuSearch(configData.getProcentOpt(), configData.getMaxIterNoImprove(),
-                                  configData.getDynamicTabuList(), configData.getTabuListSize(),
-                                  configData.getTimeMax(),
-                                  configData.getGenNeighbour());
-
-            //dodac wczytywanie z pliku
+            std::cerr << "Wystąpił błąd: " << e.what() << std::endl;
+            waitForExit();
+            return 1;
         }
+
+        return
+            0;
     }
 
-    catch
-    (std::exception& e)
+
+    void waitForExit()
     {
-        std::cerr << "Wystąpił błąd: " << e.what() << std::endl;
-        waitForExit();
-        return 1;
-    }
-
-    return
-        0;
-}
-
-
-void waitForExit()
-{
-    std::cout << "Nacisnij spacje zeby zakonczyc" << std::endl;
-    while (true)
-    {
-        char key = _getch(); // Odczyt pojedynczego znaku bez oczekiwania na Enter
-        if (key == ' ')
+        std::cout << "Nacisnij spacje zeby zakonczyc" << std::endl;
+        while (true)
         {
-            break; // Przerwij pętlę, jeśli wciśnięto spację
+            char key = _getch(); // Odczyt pojedynczego znaku bez oczekiwania na Enter
+            if (key == ' ')
+            {
+                break; // Przerwij pętlę, jeśli wciśnięto spację
+            }
         }
     }
-}
