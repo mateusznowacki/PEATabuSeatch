@@ -268,8 +268,8 @@ std::chrono::steady_clock::time_point TabuSearch::getAlgorithmTime()
     return algorithmTime;
 }
 
-long long TabuSearch::getElapsedTimeMilliseconds() {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+long long TabuSearch::getElapsedTime() {
+    return std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count();
 }
 
 

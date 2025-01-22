@@ -62,7 +62,7 @@ void ConsolePrinter::printEndInfo(int minCost, std::vector<int> bestPath, long l
     // Printing the information
     std::cout << "\n#####################################\n";
     std::cout << "Koniec obliczen znalezione wyniki\n";
-    std::cout << "Czas wykonania: " << std::fixed << std::setprecision(6) << duration << " milisekund\n";
+    std::cout << "Czas wykonania: " << std::fixed << std::setprecision(6) << duration << " mikrosekund\n";
     std::cout << "Najlepsza znaleziona sciezka: " << formattedPath << std::endl;
     std::cout << "Najmniejszy koszt znaleziony: " << minCost << std::endl;
     std::cout << "Koszt opytmalny pobrany z pliku: " << inputOptimalCost << std::endl;

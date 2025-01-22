@@ -60,7 +60,7 @@ public:
     std::chrono::steady_clock::time_point getEndTime();
     std::chrono::steady_clock::time_point getAlgorithmTime();
 
-    long long getElapsedTimeMilliseconds();
+    long long getElapsedTime();
     // Gettery
     double getProcentOpt() ;
     int getMaxIterNoImprove() ;

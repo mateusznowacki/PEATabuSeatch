@@ -54,7 +54,7 @@ int main()
 
             std::vector<int> bestFoundPath = tabuSearch.solve(graph, initial_solution, cost);
 
-             consolePrinter.printEndInfo(tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getElapsedTimeMilliseconds(),cost);
+             consolePrinter.printEndInfo(tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getElapsedTime(),cost);
             fileController.saveResultsToCSV(configData.getOutputFile(), configData.getInputFile(),
                                             cost,tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getStartTime(),
                                             tabuSearch.getEndTime());

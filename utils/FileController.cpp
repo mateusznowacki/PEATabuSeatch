@@ -179,35 +179,38 @@ void FileController::saveResultsToCSV(
     const std::vector<int> &foundPath,
     std::chrono::steady_clock::time_point startTime,
     std::chrono::steady_clock::time_point endTime)
- {
-    // Sprawdzenie, czy plik już istnieje
+{
+    // Check if file already exists
     bool exists = fileExists(outputFileName);
 
-    // Otwórz plik w trybie dołączania, jeśli istnieje; w trybie zapisu, jeśli nie istnieje
+    // Open file in append mode if it exists, or create a new one
     std::ofstream file(outputFileName, std::ios::app);
 
-    // Sprawdzenie, czy plik został poprawnie otwarty
+    // Check if the file opened successfully
     if (!file.is_open()) {
-        std::cerr << "Nie można otworzyć pliku do zapisu: " << outputFileName << std::endl;
+        std::cerr << "Cannot open file for writing: " << outputFileName << std::endl;
         return;
     }
 
-    // Zapis nagłówka, jeśli plik nie istnieje (tworzony po raz pierwszy)
+    // Write the header if the file is newly created
     if (!exists) {
-        file << "Nazwa instancji,Optymalny koszt,Optymalna ścieżka,"
-             << "Znaleziony koszt,Znaleziona ścieżka,Czas wykonania (ms),"
-             << "Błąd bezwzględny,Błąd względny (%),"
-             << "Procent rozwiazania optymalnego (%)\n";
+        file << "Instance Name,Optimal Cost,Found Cost,Found Path,Execution Time (us),"
+             << "Absolute Error,Relative Error (%),Percentage of Optimal (%)\n";
     }
 
-    // Obliczanie czasu wykonania w milisekundach
-    auto executionTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    // Calculate execution time in milliseconds
+    auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count();
 
-    // Obliczanie błędów
+    // Calculate errors and percentage
     int absoluteError = std::abs(foundCost - optimalCostFromFile);
-    double relativeError = (static_cast<double>(absoluteError) / optimalCostFromFile) * 100;
-    double percentageOfOptimal = (static_cast<double>(foundCost) / optimalCostFromFile) * 100;
+    double relativeError = (optimalCostFromFile != 0)
+        ? (static_cast<double>(absoluteError) / optimalCostFromFile) * 100
+        : 0.0;
+    double percentageOfOptimal = (optimalCostFromFile != 0)
+        ? (static_cast<double>(foundCost) / optimalCostFromFile) * 100
+        : 0.0;
 
+    // Format the found path as a string
     std::ostringstream foundPathStream;
     for (size_t i = 0; i < foundPath.size(); ++i) {
         foundPathStream << foundPath[i];
@@ -216,19 +219,20 @@ void FileController::saveResultsToCSV(
         }
     }
 
-    file << std::fixed << std::setprecision(10);
+    // Write the results into the file
+    file << std::fixed << std::setprecision(2);  // Set precision to 2 decimal places
+    file << instanceName << ","                 // Instance name
+         << optimalCostFromFile << ","          // Optimal cost
+         << foundCost << ","                    // Found cost
+         << "\"" << foundPathStream.str() << "\","  // Found path with quotes
+         << executionTime << ","                // Execution time in us
+         << absoluteError << ","                // Absolute error
+         << relativeError << ","                // Relative error (%)
+         << percentageOfOptimal                 // Percentage of optimal (%)
+         << "\n";
 
-    // Zapis danych w nowym wierszu
-    file << instanceName << ","
-         << optimalCostFromFile << ",\""
-         << foundCost << ",\""
-         << foundPathStream.str() << "\","
-         << executionTime << ","
-         << absoluteError << ","
-         << relativeError << ","
-         << percentageOfOptimal << "\n";
-
-    // Zamknięcie pliku
+    // Close the file
     file.close();
 }
+
 
