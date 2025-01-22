@@ -68,7 +68,6 @@ int main()
                                       configData.getTimeMax(),
                                       configData.getGenNeighbour());
 
-                //dodac wczytywanie z pliku
             }
         }
 
