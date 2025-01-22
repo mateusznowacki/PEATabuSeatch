@@ -21,6 +21,7 @@ public:
         std::chrono::steady_clock::time_point startTime,
         std::chrono::steady_clock::time_point endTime
     );
+    std::vector<std::string> getFileNamesFromDirectory();
     std::vector<int> readOptimalPath(const char* filename);
 };
 #endif // FILECONTROLLER_H

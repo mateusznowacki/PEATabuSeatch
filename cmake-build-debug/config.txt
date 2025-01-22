@@ -1,10 +1,10 @@
-test_mode=false
+test_mode=true
 algorithm_type=random
-time_max=1
+time_max=15
 dynamic_tabu_list=true
 tabu_list_size=3
 max_iter_no_improve=50
-procent_opt=1.5
+procent_opt=1
 genNeighbour=SWAP
 input_file=data.txt
 output_file=results.csv

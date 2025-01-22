@@ -3,10 +3,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
-
 #include <stdexcept>
 #include <regex>
-
+#include <sstream>
+#include <cmath>
+#include <dirent.h>   // For directory operations
+#include <iostream>   // For std::cerr
 
 
 std::vector<std::vector<int>> FileController::readGraphFromFile(const std::string& filename, bool testMode)
@@ -235,4 +237,30 @@ void FileController::saveResultsToCSV(
     file.close();
 }
 
+
+std::vector<std::string> FileController::getFileNamesFromDirectory() {
+    std::string directoryPath = "./instances"; // The `instances` directory assumed to be in the same directory as the executable
+    std::vector<std::string> fileNames;
+    DIR *dir;
+    struct dirent *ent;
+
+    // Open the directory
+    if ((dir = opendir(directoryPath.c_str())) != nullptr) {
+        // Iterate through all files and directories within the directory
+        while ((ent = readdir(dir)) != nullptr) {
+            // Skip "." and ".." directories
+            if (ent->d_name[0] == '.') {
+                continue;
+            }
+
+            // Add the file name with the path to the list
+            fileNames.push_back(directoryPath + "/" + ent->d_name);
+        }
+        closedir(dir);
+    } else {
+        // Could not open the directory
+        std::cerr << "Could not open directory: " << directoryPath << std::endl;
+    }
+    return fileNames;
+}
 
