@@ -22,6 +22,7 @@ private:
     int iterWithoutImprovement; // Licznik iteracji bez poprawy
     std::queue<std::string> tabuList;
     std::unordered_set<std::string> tabuSet;
+    std::vector<int> bestPath;
 
     int bestCost;
 
@@ -29,6 +30,7 @@ private:
     std::chrono::steady_clock::time_point startTime;
     std::chrono::steady_clock::time_point endTime;
     std::chrono::steady_clock::time_point algorithmTime;
+
 
     // Metody pomocnicze
     bool isTabu(const std::vector<int>& solution);
@@ -58,7 +60,7 @@ public:
     std::chrono::steady_clock::time_point getEndTime();
     std::chrono::steady_clock::time_point getAlgorithmTime();
 
-
+    long long getElapsedTimeMilliseconds();
     // Gettery
     double getProcentOpt() ;
     int getMaxIterNoImprove() ;
@@ -69,7 +71,7 @@ public:
     int getCurrentTabuListSize() ;
     int getIterWithoutImprovement() ;
     int getBestCost();
-    std::vector<int>
+    std::vector<int> getBestPath();
 
 };
 

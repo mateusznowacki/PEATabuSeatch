@@ -15,7 +15,7 @@ add_executable(PEATabuSearch
         dto/ConfigDataDto.cpp
         dto/ResultDataDto.cpp
         dto/DataDto.cpp
-        service/NearestNeighbour.cpp
-        service/RandomSolver.cpp
+        service/pea12/NearestNeighbour.cpp
+        service/pea12/RandomSolver.cpp
         service/TabuSearch.cpp
 )

@@ -42,37 +42,35 @@ void ConsolePrinter::displayResults(const std::string& fileName, int calculatedC
     std::cout << "Błąd względny: " << std::fixed << std::setprecision(2) << relativeError << " %" << std::endl;
 }
 
-void ConsolePrinter::printStartInfo(std::string inputFileName, std::string outputFileName, bool displayResults,
-                                    bool showProgress, int iterations, int getInputOptimalCost,
-                                    std::string getInputOptimalPath, int timeLimit, std::string algorithmType) {
-    std::cout << "Nazwa pliku wejsciowego: " << inputFileName << std::endl;
-    std::cout << "Nazwa pliku wyjsciowego: " << outputFileName << std::endl;
-    std::cout << "Nazwa algorytmu: " << algorithmType << std::endl;
-    std::cout << "Wyswietlanie wynikow: " << (displayResults ? "Tak" : "Nie") << std::endl;
-    std::cout << "Wyswietlanie postepu: " << (showProgress ? "Tak" : "Nie") << std::endl;
-    std::cout << "Maksymalny czas: " << timeLimit << " minut\n";
-    std::cout << "Liczba iteracji: " << iterations << std::endl;
-    std::cout << "Optymalna sciezka zapisana w pliku wejsciowym: "
-              << (getInputOptimalPath.empty() ? "brak danych" : getInputOptimalPath) << std::endl;
-    std::cout << "Optymalny koszt zapisany w pliku wejsciowym: "
-              << (getInputOptimalCost > 0 ? std::to_string(getInputOptimalCost) : "brak danych") << std::endl;
-    std::cout << "#####################################" << std::endl;
-}
 
-void ConsolePrinter::printEndInfo(int minCost, std::string bestPath, std::chrono::duration<double> duration, int inputOptimalCost) {
+void ConsolePrinter::printEndInfo(int minCost, std::vector<int> bestPath, long long duration, int inputOptimalCost) {
     int absoluteError = std::abs(minCost - inputOptimalCost);
-    double relativeError = (inputOptimalCost > 0)
-        ? (static_cast<double>(absoluteError) / inputOptimalCost) * 100
-        : 0;
+    double relativeError = (static_cast<double>(absoluteError) / inputOptimalCost) * 100;
 
+    // Formatting the path
+    std::ostringstream pathStream;
+    pathStream << "[";
+    for (size_t i = 0; i < bestPath.size(); ++i) {
+        pathStream << bestPath[i];
+        if (i < bestPath.size() - 1) {
+            pathStream << ", ";
+        }
+    }
+    pathStream << "]";
+    std::string formattedPath = pathStream.str();
+
+    // Printing the information
     std::cout << "\n#####################################\n";
     std::cout << "Koniec obliczen znalezione wyniki\n";
-    std::cout << "Czas wykonania: " << std::fixed << std::setprecision(6) << duration.count() << " sekund\n";
-    std::cout << "Najmniejszy koszt: " << minCost << std::endl;
-    std::cout << "Najlepsza sciezka: " << (bestPath.empty() ? "brak danych" : bestPath) << std::endl;
-    std::cout << "Blad bezwzgledny: " << absoluteError << std::endl;
-    std::cout << "Blad wzgledny: " << relativeError << "%" << std::endl;
+    std::cout << "Czas wykonania: " << std::fixed << std::setprecision(6) << duration << " milisekund\n";
+    std::cout << "Najlepsza znaleziona sciezka: " << formattedPath << std::endl;
+    std::cout << "Najmniejszy koszt znaleziony: " << minCost << std::endl;
+    std::cout << "Koszt opytmalny pobrany z pliku: " << inputOptimalCost << std::endl;
+    std::cout << "Blad procent optymalnego rozwiazania: " << (static_cast<double>(minCost) / inputOptimalCost * 100) << "%" << std::endl;
+    std::cout << "#####################################\n";
 }
+
+
 
 void ConsolePrinter::bestPath(int minCost, std::string basicString) {
     std::cout << "Najlepsza sciezka: " << basicString << std::endl;

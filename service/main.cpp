@@ -2,10 +2,11 @@
 #include <vector>
 #include <conio.h>
 #include "TabuSearch.h"
-#include "NearestNeighbour.h"
-#include "RandomSolver.h"
+
 #include "../utils/ConsolePrinter.h"
 #include "../utils/FileController.h"
+#include "pea12/NearestNeighbour.h"
+#include "pea12/RandomSolver.h"
 
 void waitForExit();
 
@@ -45,25 +46,18 @@ int main()
             }
             else if (configData.getAlgorithmType() == "random")
             {
-                initial_solution = randomSolver.solve(graph, 1);
+                initial_solution = randomSolver.solve(graph);
             }
 
-            cost = fileController.readCost("config.txt", false);
+            cost = fileController.readCost(configData.getInputFile(), false);
 
-            if (cost == INT32_MAX)
-            {
-                cost = nearestNeighbour.getMinCost();
-            }
 
             std::vector<int> bestFoundPath = tabuSearch.solve(graph, initial_solution, cost);
 
-
-            //wyswietl wyniki  plus zapisz do pliku
-            // consolePrinter.printEndInfo(tabuSearch.getMinCost(), tabuSearch.getBestPath(), tabuSearch.getExecutionTime());
-            // fileController.saveResultsToCSV(configData.getOutputFile(), configData.getInputFile(),
-            //                                 cost, fileController.readOptimalPath(configData.getInputFile()),
-            //                                 tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getStartTime(),
-            //                                 tabuSearch.getEndTime());
+             consolePrinter.printEndInfo(tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getElapsedTimeMilliseconds(),cost);
+            fileController.saveResultsToCSV(configData.getOutputFile(), configData.getInputFile(),
+                                            cost,tabuSearch.getBestCost(), bestFoundPath, tabuSearch.getStartTime(),
+                                            tabuSearch.getEndTime());
 
             }
             else

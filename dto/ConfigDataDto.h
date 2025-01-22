@@ -56,7 +56,7 @@ public:
 
     // Debug: Wyświetlenie wszystkich danych
     void printDebugInfo() const {
-        std::cout << "=== ConfigDataDto Debug Info ===" << std::endl;
+        std::cout << "=== Konfiguracja startowa ===" << std::endl;
         std::cout << "Test mode: " << (test_mode ? "true" : "false") << std::endl;
         std::cout << "Algorithm type: " << algorithm_type << std::endl;
         std::cout << "Time max: " << time_max << std::endl;

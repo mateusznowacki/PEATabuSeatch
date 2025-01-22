@@ -5,7 +5,8 @@
 #include <vector>
 
 #include <stdexcept>
-#include <bits/regex.h>
+#include <regex>
+
 
 
 std::vector<std::vector<int>> FileController::readGraphFromFile(const std::string& filename, bool testMode)
@@ -49,40 +50,47 @@ std::vector<std::vector<int>> FileController::readGraphFromFile(const std::strin
 
 int FileController::readCost(const std::string& filename, bool testMode)
 {
-    // Określenie ścieżki pliku
+    // 1) Zbuduj ścieżkę do pliku
     std::string filePath = testMode ? "instances/" + filename : filename;
 
-    // Otwarcie pliku
+    // 2) Otwarcie pliku
     std::ifstream file(filePath);
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
+        // Rzucamy wyjątek, jeśli nie udało się otworzyć
         throw std::runtime_error("Nie można otworzyć pliku: " + filePath);
     }
 
+    // 3) Przeszukujemy linie pliku
     std::string line;
+    const std::string key = "sum_min=";
+
     while (std::getline(file, line))
     {
-        // Szukanie klucza "sum_min="
-        const std::string key = "sum_min=";
+
+        // find() zwróci npos, jeśli nie znajdzie "sum_min="
         size_t pos = line.find(key);
-        if (pos != std::string::npos)
-        {
-            try
-            {
-                // Odczyt wartości po "sum_min="
-                int cost = std::stoi(line.substr(pos + key.length()));
-                return cost;
+        if (pos != std::string::npos) {
+            // Znaleźliśmy fragment "sum_min="
+            try {
+                // Odczytujemy liczbę po "sum_min="
+                // substring od (pos + key.size()) do końca linii
+                int cost = std::stoi(line.substr(pos + key.size()));
+
+                file.close();  // Zamykamy plik
+                return cost;   // Zwracamy wczytaną wartość
             }
-            catch (const std::invalid_argument& e)
-            {
-                throw std::runtime_error("Nieprawidłowy format wartości dla klucza sum_min.");
-            } catch (const std::out_of_range& e)
-            {
-                throw std::runtime_error("Wartość klucza sum_min przekracza zakres typu int.");
+            catch (const std::invalid_argument&) {
+                file.close();
+                throw std::runtime_error("Nieprawidłowy format wartości po sum_min=");
+            }
+            catch (const std::out_of_range&) {
+                file.close();
+                throw std::runtime_error("Wartość sum_min= przekracza zakres typu int.");
             }
         }
     }
 
+    // Jeśli nie znaleziono "sum_min=..." w pliku, zwracamy INT32_MAX
     file.close();
     return INT32_MAX;
 }
@@ -163,112 +171,64 @@ bool FileController::fileExists(const std::string &fileName) {
     return file.good();
 }
 
-// void FileController::saveResultsToCSV(
-//     const std::string &outputFileName,
-//     const std::string &instanceName,
-//     int optimalCostFromFile,
-//     const std::vector<int> &optimalPathFromFile,
-//     int foundCost,
-//     const std::vector<int> &foundPath,
-//     std::chrono::steady_clock::time_point startTime,
-//     std::chrono::steady_clock::time_point endTime)
-// ) {
-//     // Sprawdzenie, czy plik już istnieje
-//     bool exists = fileExists(outputFileName);
-//
-//     // Otwórz plik w trybie dołączania, jeśli istnieje; w trybie zapisu, jeśli nie istnieje
-//     std::ofstream file(outputFileName, std::ios::app);
-//
-//     // Sprawdzenie, czy plik został poprawnie otwarty
-//     if (!file.is_open()) {
-//         std::cerr << "Nie można otworzyć pliku do zapisu: " << outputFileName << std::endl;
-//         return;
-//     }
-//
-//     // Zapis nagłówka, jeśli plik nie istnieje (tworzony po raz pierwszy)
-//     if (!exists) {
-//         file << "Nazwa instancji,Optymalny koszt,Optymalna ścieżka,"
-//              << "Znaleziony koszt,Znaleziona ścieżka,Czas wykonania (ms),"
-//              << "Błąd bezwzględny,Błąd względny (%),"
-//              << "Procent rozwiazania optymalnego (%)\n";
-//     }
-//
-//     // Obliczanie czasu wykonania w milisekundach
-//     auto executionTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-//
-//     // Obliczanie błędów
-//     int absoluteError = std::abs(foundCost - optimalCostFromFile);
-//     double relativeError = (static_cast<double>(absoluteError) / optimalCostFromFile) * 100;
-//     double percentageOfOptimal = (static_cast<double>(foundCost) / optimalCostFromFile) * 100;
-//
-//     // Konwersja ścieżek do tekstu
-//     std::ostringstream optimalPathStream;
-//     for (size_t i = 0; i < optimalPathFromFile.size(); ++i) {
-//         optimalPathStream << optimalPathFromFile[i];
-//         if (i != optimalPathFromFile.size() - 1) {
-//             optimalPathStream << " -> ";
-//         }
-//     }
-//     std::ostringstream foundPathStream;
-//     for (size_t i = 0; i < foundPath.size(); ++i) {
-//         foundPathStream << foundPath[i];
-//         if (i != foundPath.size() - 1) {
-//             foundPathStream << " -> ";
-//         }
-//     }
-//
-//     file << std::fixed << std::setprecision(10);
-//
-//     // Zapis danych w nowym wierszu
-//     file << instanceName << ","
-//          << optimalCostFromFile << ",\""
-//          << optimalPathStream.str() << "\","
-//          << foundCost << ",\""
-//          << foundPathStream.str() << "\","
-//          << executionTime << ","
-//          << absoluteError << ","
-//          << relativeError << ","
-//          << percentageOfOptimal << "\n";
-//
-//     // Zamknięcie pliku
-//     file.close();
-}
+void FileController::saveResultsToCSV(
+    const std::string &outputFileName,
+    const std::string &instanceName,
+    int optimalCostFromFile,
+    int foundCost,
+    const std::vector<int> &foundPath,
+    std::chrono::steady_clock::time_point startTime,
+    std::chrono::steady_clock::time_point endTime)
+ {
+    // Sprawdzenie, czy plik już istnieje
+    bool exists = fileExists(outputFileName);
 
-std::vector<int> FileController::readOptimalPath(const char* fileName) {
-    std::ifstream file(fileName);
+    // Otwórz plik w trybie dołączania, jeśli istnieje; w trybie zapisu, jeśli nie istnieje
+    std::ofstream file(outputFileName, std::ios::app);
+
+    // Sprawdzenie, czy plik został poprawnie otwarty
     if (!file.is_open()) {
-        throw std::runtime_error("Nie można otworzyć pliku: ");
+        std::cerr << "Nie można otworzyć pliku do zapisu: " << outputFileName << std::endl;
+        return;
     }
 
-    std::vector<int> optimalPath;
-    std::string line;
-    std::regex optimalPathRegex(R"(optimal_path\s*=\s*\[?\s*([\d\s,]+)\]?)"); // Obsługuje różne formaty
+    // Zapis nagłówka, jeśli plik nie istnieje (tworzony po raz pierwszy)
+    if (!exists) {
+        file << "Nazwa instancji,Optymalny koszt,Optymalna ścieżka,"
+             << "Znaleziony koszt,Znaleziona ścieżka,Czas wykonania (ms),"
+             << "Błąd bezwzględny,Błąd względny (%),"
+             << "Procent rozwiazania optymalnego (%)\n";
+    }
 
-    while (std::getline(file, line)) {
-        std::smatch match;
-        if (std::regex_search(line.begin(), line.end(), match, optimalPathRegex)) {
-            // Dopasowanie wyrażenia w linii tekstu
-            std::string pathString = match[1].str();
-            // Parsowanie liczb w ścieżce
-            std::istringstream iss(pathString);
-            int number;
-            char separator; // Dla przecinków i spacji
-            while (iss >> number) {
-                optimalPath.push_back(number);
-                iss >> separator; // Pomija przecinki
-            }
-        }
+    // Obliczanie czasu wykonania w milisekundach
+    auto executionTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
+    // Obliczanie błędów
+    int absoluteError = std::abs(foundCost - optimalCostFromFile);
+    double relativeError = (static_cast<double>(absoluteError) / optimalCostFromFile) * 100;
+    double percentageOfOptimal = (static_cast<double>(foundCost) / optimalCostFromFile) * 100;
 
-            break; // Zatrzymujemy, gdy znajdziemy optymalną ścieżkę
+    std::ostringstream foundPathStream;
+    for (size_t i = 0; i < foundPath.size(); ++i) {
+        foundPathStream << foundPath[i];
+        if (i != foundPath.size() - 1) {
+            foundPathStream << " -> ";
         }
     }
 
+    file << std::fixed << std::setprecision(10);
+
+    // Zapis danych w nowym wierszu
+    file << instanceName << ","
+         << optimalCostFromFile << ",\""
+         << foundCost << ",\""
+         << foundPathStream.str() << "\","
+         << executionTime << ","
+         << absoluteError << ","
+         << relativeError << ","
+         << percentageOfOptimal << "\n";
+
+    // Zamknięcie pliku
     file.close();
-
-    if (optimalPath.empty()) {
-        throw std::runtime_error("Nie znaleziono klucza 'optimal_path' w pliku: ");
-    }
-
-    return optimalPath;
 }
+

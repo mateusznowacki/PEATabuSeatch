@@ -23,7 +23,7 @@ public:
 
     void bestPath(int minCost, std::string basicString);
 
-    void printEndInfo(int minCost, std::string bestPath, std::chrono::duration<double> duration, int inputOptimalCost);
+    void printEndInfo(int minCost, std::vector<int> bestPath, long long duration, int inputOptimalCost);
 };
 
 

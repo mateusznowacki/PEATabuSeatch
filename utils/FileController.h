@@ -12,16 +12,15 @@ public:
     int readCost(const std::string& string, bool get_test_mode);
     ConfigDataDto readConfigFile(const char* filename);
     bool fileExists(const std::string& fileName);
-    // void FileController::saveResultsToCSV(
-    //     const std::string& outputFileName,
-    //     const std::string& instanceName,
-    //     int optimalCostFromFile,
-    //     const std::vector<int>& optimalPathFromFile,
-    //     int foundCost,
-    //     const std::vector<int>& foundPath,
-    //     std::chrono::steady_clock::time_point startTime,
-    //     std::chrono::steady_clock::time_point endTime
-    // );
+    void saveResultsToCSV(
+        const std::string& outputFileName,
+        const std::string& instanceName,
+        int optimalCostFromFile,
+        int foundCost,
+        const std::vector<int>& foundPath,
+        std::chrono::steady_clock::time_point startTime,
+        std::chrono::steady_clock::time_point endTime
+    );
     std::vector<int> readOptimalPath(const char* filename);
 };
 #endif // FILECONTROLLER_H

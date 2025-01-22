@@ -6,9 +6,11 @@
 #include <sstream>
 
 // Pomocnicza funkcja do tworzenia hasha (klucza) z wektora (rozwiązania)
-static std::string hashSolution(const std::vector<int>& solution) {
+static std::string hashSolution(const std::vector<int>& solution)
+{
     std::ostringstream oss;
-    for (int node : solution) {
+    for (int node : solution)
+    {
         oss << node << ",";
     }
     return oss.str();
@@ -40,12 +42,15 @@ std::vector<int> TabuSearch::solve(
     const std::vector<std::vector<int>>& graph,
     const std::vector<int>& initialSolution,
     int optimumCost
-) {
+)
+{
     // 1) Jeśli dynamicTabuList = true, ustalamy bieżący rozmiar tabu
-    if (dynamicTabuList) {
+    if (dynamicTabuList)
+    {
         currentTabuListSize = static_cast<int>(initialSolution.size() / 3);
         // na wszelki wypadek minimalny rozmiar to 1
-        if (currentTabuListSize < 1) {
+        if (currentTabuListSize < 1)
+        {
             currentTabuListSize = 1;
         }
     }
@@ -55,7 +60,8 @@ std::vector<int> TabuSearch::solve(
 
     // 3) Oblicz koszt ścieżki początkowej
     int currentCost = 0;
-    for (size_t i = 0; i < initialSolution.size() - 1; ++i) {
+    for (size_t i = 0; i < initialSolution.size() - 1; ++i)
+    {
         currentCost += graph[initialSolution[i]][initialSolution[i + 1]];
     }
     // Dodaj powrót do wierzchołka startowego
@@ -67,18 +73,22 @@ std::vector<int> TabuSearch::solve(
     bestCost = currentCost;
 
     // 4) Główna pętla Tabu Search
-    while (true) {
+    while (true)
+    {
         // a) Warunek czasu
-        if (isTimeExceeded()) {
+        if (isTimeExceeded())
+        {
             break;
         }
         // b) Warunek maksymalnej liczby iteracji bez poprawy
-        if (iterWithoutImprovement >= maxIterNoImprove) {
+        if (iterWithoutImprovement >= maxIterNoImprove)
+        {
             break;
         }
         // c) Warunek osiągnięcia wymaganego procentu optymalnego kosztu
         //    Jeśli bestCost <= procentOpt * optimumCost -> stop
-        if (bestCost <= procentOpt * optimumCost) {
+        if (currentCost <= procentOpt * optimumCost)
+        {
             break;
         }
 
@@ -89,10 +99,12 @@ std::vector<int> TabuSearch::solve(
         std::vector<int> bestNeighbor;
 
         // 6) Przeglądanie sąsiedztwa
-        for (const auto& neighbor : neighborhood) {
+        for (const auto& neighbor : neighborhood)
+        {
             // Obliczamy koszt kandydata
             int neighborCost = 0;
-            for (size_t i = 0; i < neighbor.size() - 1; ++i) {
+            for (size_t i = 0; i < neighbor.size() - 1; ++i)
+            {
                 neighborCost += graph[neighbor[i]][neighbor[i + 1]];
             }
             // Powrót do startu
@@ -102,14 +114,16 @@ std::vector<int> TabuSearch::solve(
             bool aspiration = (neighborCost < bestCost);
 
             // Kryteria: nie tabu (lub spełniona aspiracja) i najlepszy z dotychczasowych
-            if ((!tabuStatus || aspiration) && neighborCost < bestNeighborCost) {
+            if ((!tabuStatus || aspiration) && neighborCost < bestNeighborCost)
+            {
                 bestNeighbor = neighbor;
                 bestNeighborCost = neighborCost;
             }
         }
 
         // 7) Aktualizacja bieżącego rozwiązania, jeśli znaleziono lepszego sąsiada
-        if (!bestNeighbor.empty()) {
+        if (!bestNeighbor.empty())
+        {
             currentSolution = bestNeighbor;
             currentCost = bestNeighborCost;
 
@@ -117,28 +131,35 @@ std::vector<int> TabuSearch::solve(
             updateTabuList(bestNeighbor);
 
             // Sprawdź, czy poprawiliśmy najlepsze dotychczasowe
-            if (currentCost < bestCost) {
+            if (currentCost < bestCost)
+            {
                 bestCost = currentCost;
                 bestOverallSolution = currentSolution;
                 iterWithoutImprovement = 0;
-            } else {
+            }
+            else
+            {
                 ++iterWithoutImprovement;
             }
-        } else {
+        }
+        else
+        {
             // Jeśli nie znaleźliśmy w sąsiedztwie niczego dozwolonego lepszego,
             // to możemy traktować to jako kolejną iterację bez poprawy
             ++iterWithoutImprovement;
         }
 
         // 8) Dywersyfikacja po pewnej liczbie iteracji bez poprawy
-        if (iterWithoutImprovement > 10) {
+        if (iterWithoutImprovement > 10)
+        {
             std::random_device rd;
             std::mt19937 g(rd());
             std::shuffle(currentSolution.begin(), currentSolution.end(), g);
 
             // Oblicz koszt po przetasowaniu
             currentCost = 0;
-            for (size_t i = 0; i < currentSolution.size() - 1; ++i) {
+            for (size_t i = 0; i < currentSolution.size() - 1; ++i)
+            {
                 currentCost += graph[currentSolution[i]][currentSolution[i + 1]];
             }
             currentCost += graph[currentSolution.back()][currentSolution.front()];
@@ -152,11 +173,8 @@ std::vector<int> TabuSearch::solve(
     // Przechowujemy różnicę w algorithmTime w postaci time_point przesuniętego od epoki:
     algorithmTime = std::chrono::steady_clock::time_point(endTime - startTime);
 
-    // Można odkomentować do debugowania:
-    // std::cout << "[DEBUG] bestCost=" << bestCost
-    //           << " (procentOpt=" << procentOpt
-    //           << ", optimumCost=" << optimumCost << ")\n";
 
+    bestPath = bestOverallSolution;
     return bestOverallSolution;
 }
 
@@ -165,24 +183,32 @@ std::vector<int> TabuSearch::solve(
 // --------------------------------------------------
 
 // Generowanie sąsiedztwa
-std::vector<std::vector<int>> TabuSearch::generateNeighborhood(const std::vector<int>& solution) {
+std::vector<std::vector<int>> TabuSearch::generateNeighborhood(const std::vector<int>& solution)
+{
     std::vector<std::vector<int>> neighborhood;
 
-    if (genNeighbour == "SWAP") {
+    if (genNeighbour == "SWAP")
+    {
         // Sąsiedztwo przez zamianę par elementów
-        for (size_t i = 0; i < solution.size(); ++i) {
-            for (size_t j = i + 1; j < solution.size(); ++j) {
+        for (size_t i = 0; i < solution.size(); ++i)
+        {
+            for (size_t j = i + 1; j < solution.size(); ++j)
+            {
                 std::vector<int> neighbor = solution;
                 std::swap(neighbor[i], neighbor[j]);
                 neighborhood.push_back(neighbor);
             }
         }
     }
-    else if (genNeighbour == "INSERT") {
+    else if (genNeighbour == "INSERT")
+    {
         // Sąsiedztwo przez "INSERT"
-        for (size_t i = 0; i < solution.size(); ++i) {
-            for (size_t j = 0; j < solution.size(); ++j) {
-                if (i != j) {
+        for (size_t i = 0; i < solution.size(); ++i)
+        {
+            for (size_t j = 0; j < solution.size(); ++j)
+            {
+                if (i != j)
+                {
                     std::vector<int> neighbor = solution;
                     int element = neighbor[i];
                     neighbor.erase(neighbor.begin() + i);
@@ -197,18 +223,21 @@ std::vector<std::vector<int>> TabuSearch::generateNeighborhood(const std::vector
 }
 
 // Sprawdza, czy rozwiązanie jest już w tabu
-bool TabuSearch::isTabu(const std::vector<int>& solution) {
+bool TabuSearch::isTabu(const std::vector<int>& solution)
+{
     std::string hash = hashSolution(solution);
     return (tabuSet.find(hash) != tabuSet.end());
 }
 
 // Aktualizuje listę tabu (wstawia nowe rozwiązanie, usuwa najstarsze przy przekroczeniu limitu)
-void TabuSearch::updateTabuList(const std::vector<int>& solution) {
+void TabuSearch::updateTabuList(const std::vector<int>& solution)
+{
     std::string hash = hashSolution(solution);
     tabuList.push(hash);
     tabuSet.insert(hash);
 
-    while ((int)tabuList.size() > currentTabuListSize) {
+    while ((int)tabuList.size() > currentTabuListSize)
+    {
         auto frontHash = tabuList.front();
         tabuList.pop();
         tabuSet.erase(frontHash);
@@ -216,56 +245,73 @@ void TabuSearch::updateTabuList(const std::vector<int>& solution) {
 }
 
 // Sprawdza, czy przekroczono maksymalny czas (timeMax minut)
-bool TabuSearch::isTimeExceeded() {
+bool TabuSearch::isTimeExceeded()
+{
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::minutes>(currentTime - startTime).count();
     return (elapsedTime >= timeMax);
 }
 
 // Gettery czasu
-std::chrono::steady_clock::time_point TabuSearch::getStartTime() {
+std::chrono::steady_clock::time_point TabuSearch::getStartTime()
+{
     return startTime;
 }
 
-std::chrono::steady_clock::time_point TabuSearch::getEndTime() {
+std::chrono::steady_clock::time_point TabuSearch::getEndTime()
+{
     return endTime;
 }
 
-std::chrono::steady_clock::time_point TabuSearch::getAlgorithmTime() {
+std::chrono::steady_clock::time_point TabuSearch::getAlgorithmTime()
+{
     return algorithmTime;
 }
 
+long long TabuSearch::getElapsedTimeMilliseconds() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+}
+
+
 
 // Gettery
-double TabuSearch::getProcentOpt()  {
+double TabuSearch::getProcentOpt()
+{
     return procentOpt;
 }
 
-int TabuSearch::getMaxIterNoImprove()  {
+int TabuSearch::getMaxIterNoImprove()
+{
     return maxIterNoImprove;
 }
 
-bool TabuSearch::isDynamicTabuList()  {
+bool TabuSearch::isDynamicTabuList()
+{
     return dynamicTabuList;
 }
 
-int TabuSearch::getTabuListSize()  {
+int TabuSearch::getTabuListSize()
+{
     return tabuListSize;
 }
 
-int TabuSearch::getTimeMax()  {
+int TabuSearch::getTimeMax()
+{
     return timeMax;
 }
 
-std::string TabuSearch::getGenNeighbour()  {
+std::string TabuSearch::getGenNeighbour()
+{
     return genNeighbour;
 }
 
-int TabuSearch::getCurrentTabuListSize()  {
+int TabuSearch::getCurrentTabuListSize()
+{
     return currentTabuListSize;
 }
 
-int TabuSearch::getIterWithoutImprovement()  {
+int TabuSearch::getIterWithoutImprovement()
+{
     return iterWithoutImprovement;
 }
 
@@ -274,3 +320,7 @@ int TabuSearch::getBestCost()
     return bestCost;
 }
 
+std::vector<int> TabuSearch::getBestPath()
+{
+    return bestPath;
+}
