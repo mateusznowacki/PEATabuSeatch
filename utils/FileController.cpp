@@ -10,7 +10,6 @@
 #include <dirent.h>   // For directory operations
 #include <iostream>   // For std::cerr
 
-
 std::vector<std::vector<int>> FileController::readGraphFromFile(const std::string& filename, bool testMode)
 {
     // Określenie ścieżki pliku
@@ -23,31 +22,62 @@ std::vector<std::vector<int>> FileController::readGraphFromFile(const std::strin
         throw std::runtime_error("Nie można otworzyć pliku: " + filePath);
     }
 
-    // Odczyt liczby wierzchołków
-    int numberOfVertices;
-    file >> numberOfVertices;
-    if (file.fail())
+    // Opcjonalna wartość optymalna (opt)
+    int optValue = -1;
+    std::string firstLine;
+    std::getline(file, firstLine);
+
+    // Sprawdzenie, czy linia zaczyna się od "opt="
+    if (firstLine.rfind("opt=", 0) == 0) // sprawdza, czy "opt=" jest na początku
     {
-        throw std::runtime_error("Nieprawidłowy format pliku: brak liczby wierzchołków.");
+        std::istringstream iss(firstLine.substr(4)); // Pomijamy "opt="
+        iss >> optValue;
+        if (iss.fail())
+        {
+            throw std::runtime_error("Nieprawidłowy format pliku: błąd odczytu wartości opt.");
+        }
+    }
+    else
+    {
+        // Jeśli nie zaczyna się od "opt=", cofnij wskaźnik pliku
+        file.clear();
+        file.seekg(0);
     }
 
     // Odczyt macierzy sąsiedztwa
-    std::vector<std::vector<int>> graph(numberOfVertices, std::vector<int>(numberOfVertices));
-    for (int i = 0; i < numberOfVertices; ++i)
+    std::vector<std::vector<int>> graph;
+    std::string line;
+    while (std::getline(file, line))
     {
-        for (int j = 0; j < numberOfVertices; ++j)
+        std::istringstream iss(line);
+        std::vector<int> row;
+        int value;
+
+        while (iss >> value)
         {
-            file >> graph[i][j];
-            if (file.fail())
-            {
-                throw std::runtime_error("Nieprawidłowy format pliku: błąd podczas odczytu macierzy.");
-            }
+            row.push_back(value);
+        }
+
+        if (!row.empty())
+        {
+            graph.push_back(row);
+        }
+    }
+
+    // Sprawdzenie poprawności macierzy
+    size_t numberOfVertices = graph.size();
+    for (const auto& row : graph)
+    {
+        if (row.size() != numberOfVertices)
+        {
+            throw std::runtime_error("Nieprawidłowy format pliku: macierz nie jest kwadratowa.");
         }
     }
 
     file.close(); // Zamknięcie pliku
     return graph;
 }
+
 
 
 int FileController::readCost(const std::string& filename, bool testMode)
@@ -64,7 +94,7 @@ int FileController::readCost(const std::string& filename, bool testMode)
 
     // 3) Przeszukujemy linie pliku
     std::string line;
-    const std::string key = "sum_min=";
+    const std::string key = "opt=";
 
     while (std::getline(file, line))
     {

@@ -101,7 +101,7 @@ int main()
                 int costLocal = fileController.readCost(filePath, false);
 
                 // c) Pętla na 10 powtórzeń (przykład)
-                int numberOfRuns = 10;
+                numberOfRuns = 5;
                 for (int run = 1; run <= numberOfRuns; ++run)
                 {
                     //  - Tworzymy TabuSearch
