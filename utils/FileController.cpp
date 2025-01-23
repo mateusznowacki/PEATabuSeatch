@@ -23,27 +23,49 @@ std::vector<std::vector<int>> FileController::readGraphFromFile(const std::strin
         throw std::runtime_error("Nie można otworzyć pliku: " + filePath);
     }
 
-    // Odczyt liczby wierzchołków
-    int numberOfVertices;
-    file >> numberOfVertices;
-    if (file.fail())
+    // Opcjonalna wartość optymalna (opt)
+    int optValue = -1;
+    std::string firstLine;
+    std::getline(file, firstLine);
+
+    // Sprawdzenie, czy linia zaczyna się od "opt="
+    if (firstLine.rfind("opt=", 0) == 0) // sprawdza, czy "opt=" jest na początku
     {
-        throw std::runtime_error("Nieprawidłowy format pliku: brak liczby wierzchołków.");
+        std::istringstream iss(firstLine.substr(4)); // Pomijamy "opt="
+        iss >> optValue;
+        if (iss.fail())
+        {
+            throw std::runtime_error("Nieprawidłowy format pliku: błąd odczytu wartości opt.");
+        }
+    }
+    else
+    {
+        // Jeśli nie zaczyna się od "opt=", cofnij wskaźnik pliku
+        file.clear();
+        file.seekg(0);
     }
 
     // Odczyt macierzy sąsiedztwa
-    std::vector<std::vector<int>> graph(numberOfVertices, std::vector<int>(numberOfVertices));
-    for (int i = 0; i < numberOfVertices; ++i)
+    std::vector<std::vector<int>> graph;
+    std::string line;
+    while (std::getline(file, line))
     {
-        for (int j = 0; j < numberOfVertices; ++j)
+        std::istringstream iss(line);
+        std::vector<int> row;
+        int value;
+
+        while (iss >> value)
         {
-            file >> graph[i][j];
-            if (file.fail())
-            {
-                throw std::runtime_error("Nieprawidłowy format pliku: błąd podczas odczytu macierzy.");
-            }
+            row.push_back(value);
+        }
+
+        if (!row.empty())
+        {
+            graph.push_back(row);
         }
     }
+
+
 
     file.close(); // Zamknięcie pliku
     return graph;
@@ -64,7 +86,7 @@ int FileController::readCost(const std::string& filename, bool testMode)
 
     // 3) Przeszukujemy linie pliku
     std::string line;
-    const std::string key = "sum_min=";
+    const std::string key = "opt=";
 
     while (std::getline(file, line))
     {
@@ -97,6 +119,12 @@ int FileController::readCost(const std::string& filename, bool testMode)
     return INT32_MAX;
 }
 
+#include "FileController.h"
+#include <fstream>
+#include <stdexcept>
+#include <algorithm>
+#include <cctype>
+
 ConfigDataDto FileController::readConfigFile(const char* filename) {
     ConfigDataDto config;
 
@@ -107,65 +135,92 @@ ConfigDataDto FileController::readConfigFile(const char* filename) {
 
     std::string line;
     while (std::getline(file, line)) {
-        // Pomijanie pustych linii lub komentarzy
+        // Pomijamy puste linie i komentarze (# na początku linii)
         if (line.empty() || line[0] == '#') {
             continue;
         }
 
-        // Znalezienie pozycji separatora '='
+        // Znajdujemy pozycję znaku '='
         size_t delimiterPos = line.find('=');
         if (delimiterPos == std::string::npos) {
+            // Jeżeli nie ma znaku '=', to format linii jest niepoprawny
             throw std::runtime_error("Nieprawidłowy format linii w pliku konfiguracyjnym: " + line);
         }
 
-        // Rozdzielenie klucza i wartości
-        std::string key = line.substr(0, delimiterPos);
+        // Rozdzielamy klucz i wartość
+        std::string key   = line.substr(0, delimiterPos);
         std::string value = line.substr(delimiterPos + 1);
 
-        // Usuwanie białych znaków
+        // Usuwanie białych znaków na końcu klucza
         key.erase(key.find_last_not_of(" \t\r\n") + 1);
+        // Usuwanie białych znaków z początku wartości
         value.erase(0, value.find_first_not_of(" \t\r\n"));
 
-        // Konwersja wartości na małe litery, jeśli klucz wymaga (np. genNeighbour)
-        if (key == "genNeighbour") {
-            std::transform(value.begin(), value.end(), value.begin(), ::toupper);
-        }
-
-        // Przypisanie wartości do odpowiednich pól za pomocą setterów
+        // ---- Przypisywanie wartości na podstawie klucza ----
         if (key == "test_mode") {
             config.setTestMode(value == "true");
-        } else if (key == "algorithm_type") {
+        }
+        else if (key == "algorithm_type") {
             config.setAlgorithmType(value);
-        } else if (key == "time_max") {
-            config.setTimeMax(std::stoi(value));
-        } else if (key == "dynamic_tabu_list") {
-            config.setDynamicTabuList(value == "true");
-        } else if (key == "tabu_list_size") {
-            config.setTabuListSize(std::stoi(value));
-        } else if (key == "max_iter_no_improve") {
-            config.setMaxIterNoImprove(std::stoi(value));
-        } else if (key == "procent_opt") {
-            config.setProcentOpt(std::stod(value));
-        } else if (key == "genNeighbour") {
-            config.setGenNeighbour(value);  // Oczekiwane wartości: SWAP, INSERT
-        } else if (key == "input_file") {
+        }
+
+        // --- Parametry dla ACO ---
+        else if (key == "numOfAnts") {
+            config.setNumOfAnts(std::stoi(value));
+        }
+        else if (key == "numOfIterations") {
+            config.setNumOfIterations(std::stoi(value));
+        }
+        else if (key == "alpha") {
+            config.setAlpha(std::stod(value)); // lub std::stof, zależnie od typu w DTO
+        }
+        else if (key == "beta") {
+            config.setBeta(std::stod(value));
+        }
+        else if (key == "method") {
+            // "cas" lub "das" – można przechowywać w stringu
+            config.setMethod(value);
+        }
+        else if (key == "pheromoneQ") {
+            config.setPheromoneQ(std::stod(value));
+        }
+        else if (key == "pheromoneEvaporation") {
+            config.setPheromoneEvaporation(std::stod(value));
+        }
+        // --- Koniec parametrów ACO ---
+
+        else if (key == "input_file") {
             config.setInputFile(value);
-        } else if (key == "output_file") {
+        }
+        else if (key == "output_file") {
             config.setOutputFile(value);
-        } else if (key == "name") {
+        }
+        else if (key == "name") {
             config.setName(value);
-        } else if (key == "display_results") {
+        }
+        else if (key == "display_results") {
             config.setDisplayResults(value == "true");
-        } else if (key == "show_progress") {
+        }
+        else if (key == "show_progress") {
             config.setShowProgress(value == "true");
-        } else {
+        }
+        else {
+            // Jeżeli pojawia się jakiś klucz, którego nie znamy, zgłaszamy wyjątek
             throw std::runtime_error("Nieznany klucz w pliku konfiguracyjnym: " + key);
         }
     }
 
     file.close();
+
+    // Ewentualna weryfikacja, czy wczytano wszystkie wymagane parametry.
+    // Można np. sprawdzić, czy numOfAnts > 0, czy plik wejściowy nie jest pusty itd.
+    // Jeżeli brakuje jakiegoś kluczowego parametru, można ustawić domyślną wartość
+    // lub rzucić wyjątek.
+
     return config;
 }
+
+
 
 // Funkcja do sprawdzania istnienia pliku
 bool FileController::fileExists(const std::string &fileName) {
@@ -237,30 +292,32 @@ void FileController::saveResultsToCSV(
     file.close();
 }
 
-
 std::vector<std::string> FileController::getFileNamesFromDirectory() {
-    std::string directoryPath = "./instances"; // The `instances` directory assumed to be in the same directory as the executable
+    // Katalog roboczy (ścieżka do folderu "instances")
+    const std::string directoryPath = "./instances";
     std::vector<std::string> fileNames;
-    DIR *dir;
-    struct dirent *ent;
 
-    // Open the directory
-    if ((dir = opendir(directoryPath.c_str())) != nullptr) {
-        // Iterate through all files and directories within the directory
-        while ((ent = readdir(dir)) != nullptr) {
-            // Skip "." and ".." directories
-            if (ent->d_name[0] == '.') {
-                continue;
-            }
-
-            // Add the file name with the path to the list
-            fileNames.push_back(directoryPath + "/" + ent->d_name);
-        }
-        closedir(dir);
-    } else {
-        // Could not open the directory
-        std::cerr << "Could not open directory: " << directoryPath << std::endl;
+    // Otwieramy katalog
+    DIR *dir = opendir(directoryPath.c_str());
+    if (dir == nullptr) {
+        throw std::runtime_error("Nie można otworzyć katalogu: " + directoryPath);
     }
+
+    // Iterujemy przez pliki w katalogu
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != nullptr) {
+        // Pomijamy "." i ".."
+        if (ent->d_name[0] == '.') {
+            continue;
+        }
+
+        // Dodajemy pełną ścieżkę pliku do wyniku
+        fileNames.push_back(ent->d_name);
+    }
+
+    // Zamykamy katalog
+    closedir(dir);
+
+
     return fileNames;
 }
-

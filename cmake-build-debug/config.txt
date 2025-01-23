@@ -1,14 +1,20 @@
 test_mode=true
-algorithm_type=random
-time_max=15
-dynamic_tabu_list=true
-tabu_list_size=3
-max_iter_no_improve=50
-procent_opt=1
-genNeighbour=SWAP
+numOfAnts=100
+numOfIterations=1000
+alpha=1
+beta=3
+method=cas
+pheromoneQ=100
+pheromoneEvaporation=0.5
 input_file=data.txt
 output_file=results.csv
 name=test_instance
 display_results=true
 show_progress=false
+
+
+
+
+
+
 

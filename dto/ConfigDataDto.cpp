@@ -1,174 +1,63 @@
 #include "ConfigDataDto.h"
-
-#include <ios>
 #include <iostream>
-#include <string>
 
 // Konstruktor domyślny
 ConfigDataDto::ConfigDataDto()
-    : test_mode(false),
-      algorithm_type(""),
-      time_max(0),
-      dynamic_tabu_list(false),
-      tabu_list_size(0),
-      max_iter_no_improve(0),
-      procent_opt(0.0),
-      genNeighbour(""),
-      input_file(""),
-      output_file(""),
-      name(""),
-      display_results(false),
-      show_progress(false)
+
 {
 }
 
-// Settery
-void ConfigDataDto::setTestMode(bool value)
-{
-    test_mode = value;
-}
+// ----- Settery -----
+void ConfigDataDto::setTestMode(bool value)              { test_mode = value; }
+void ConfigDataDto::setAlgorithmType(const std::string& val) { algorithm_type = val; }
+void ConfigDataDto::setInputFile(const std::string& val) { input_file = val; }
+void ConfigDataDto::setOutputFile(const std::string& val){ output_file = val; }
+void ConfigDataDto::setName(const std::string& val)      { name = val; }
+void ConfigDataDto::setDisplayResults(bool value)        { display_results = value; }
+void ConfigDataDto::setShowProgress(bool value)          { show_progress = value; }
 
-void ConfigDataDto::setAlgorithmType(const std::string& value)
-{
-    algorithm_type = value;
-}
+void ConfigDataDto::setNumOfAnts(int val)                { numOfAnts = val; }
+void ConfigDataDto::setNumOfIterations(int val)          { numOfIterations = val; }
+void ConfigDataDto::setAlpha(double val)                 { alpha = val; }
+void ConfigDataDto::setBeta(double val)                  { beta = val; }
+void ConfigDataDto::setMethod(const std::string& val)    { method = val; }
+void ConfigDataDto::setPheromoneQ(double val)            { pheromoneQ = val; }
+void ConfigDataDto::setPheromoneEvaporation(double val)  { pheromoneEvaporation = val; }
 
-void ConfigDataDto::setTimeMax(int value)
-{
-    time_max = value;
-}
+// ----- Gettery -----
+bool ConfigDataDto::getTestMode() const                  { return test_mode; }
+std::string ConfigDataDto::getAlgorithmType() const      { return algorithm_type; }
+std::string ConfigDataDto::getInputFile() const          { return input_file; }
+std::string ConfigDataDto::getOutputFile() const         { return output_file; }
+std::string ConfigDataDto::getName() const               { return name; }
+bool ConfigDataDto::getDisplayResults() const            { return display_results; }
+bool ConfigDataDto::getShowProgress() const              { return show_progress; }
 
-void ConfigDataDto::setDynamicTabuList(bool value)
-{
-    dynamic_tabu_list = value;
-}
+int ConfigDataDto::getNumOfAnts() const                  { return numOfAnts; }
+int ConfigDataDto::getNumOfIterations() const            { return numOfIterations; }
+double ConfigDataDto::getAlpha() const                   { return alpha; }
+double ConfigDataDto::getBeta() const                    { return beta; }
+std::string ConfigDataDto::getMethod() const             { return method; }
+double ConfigDataDto::getPheromoneQ() const              { return pheromoneQ; }
+double ConfigDataDto::getPheromoneEvaporation() const    { return pheromoneEvaporation; }
 
-void ConfigDataDto::setTabuListSize(int value)
-{
-    tabu_list_size = value;
-}
-
-void ConfigDataDto::setMaxIterNoImprove(int value)
-{
-    max_iter_no_improve = value;
-}
-
-void ConfigDataDto::setProcentOpt(double value)
-{
-    procent_opt = value;
-}
-
-void ConfigDataDto::setGenNeighbour(const std::string& value)
-{
-    genNeighbour = value;
-}
-
-void ConfigDataDto::setInputFile(const std::string& value)
-{
-    input_file = value;
-}
-
-void ConfigDataDto::setOutputFile(const std::string& value)
-{
-    output_file = value;
-}
-
-void ConfigDataDto::setName(const std::string& value)
-{
-    name = value;
-}
-
-void ConfigDataDto::setDisplayResults(bool value)
-{
-    display_results = value;
-}
-
-void ConfigDataDto::setShowProgress(bool value)
-{
-    show_progress = value;
-}
-
-// Gettery
-bool ConfigDataDto::getTestMode() const
-{
-    return test_mode;
-}
-
-std::string ConfigDataDto::getAlgorithmType() const
-{
-    return algorithm_type;
-}
-
-int ConfigDataDto::getTimeMax() const
-{
-    return time_max;
-}
-
-bool ConfigDataDto::getDynamicTabuList() const
-{
-    return dynamic_tabu_list;
-}
-
-int ConfigDataDto::getTabuListSize() const
-{
-    return tabu_list_size;
-}
-
-int ConfigDataDto::getMaxIterNoImprove() const
-{
-    return max_iter_no_improve;
-}
-
-double ConfigDataDto::getProcentOpt() const
-{
-    return procent_opt;
-}
-
-std::string ConfigDataDto::getGenNeighbour() const
-{
-    return genNeighbour;
-}
-
-std::string ConfigDataDto::getInputFile() const
-{
-    return input_file;
-}
-
-std::string ConfigDataDto::getOutputFile() const
-{
-    return output_file;
-}
-
-std::string ConfigDataDto::getName() const
-{
-    return name;
-}
-
-bool ConfigDataDto::getDisplayResults() const
-{
-    return display_results;
-}
-
-bool ConfigDataDto::getShowProgress() const
-{
-    return show_progress;
-}
-
-
-// Metoda debug
-void ConfigDataDto::debug()
-{
-    std::cout << "Test Mode: " << std::boolalpha << test_mode << "\n"
-        << "Algorithm Type: " << algorithm_type << "\n"
-        << "Time Max: " << time_max << "\n"
-        << "Dynamic Tabu List: " << std::boolalpha << dynamic_tabu_list << "\n"
-        << "Tabu List Size: " << tabu_list_size << "\n"
-        << "Max Iter No Improve: " << max_iter_no_improve << "\n"
-        << "Procent Opt: " << procent_opt << "\n"
-        << "Gen Neighbour: " << genNeighbour << "\n"
-        << "Input File: " << input_file << "\n"
-        << "Output File: " << output_file << "\n"
-        << "Name: " << name << "\n"
-        << "Display Results: " << std::boolalpha << display_results << "\n"
-        << "Show Progress: " << std::boolalpha << show_progress << "\n";
+// Debug
+void ConfigDataDto::printDebugInfo() const {
+    std::cout << "=== Konfiguracja (ACO) ===" << std::endl;
+    std::cout << "test_mode: " << (test_mode ? "true" : "false") << std::endl;
+    std::cout << "algorithm_type: " << algorithm_type << std::endl;
+    std::cout << "input_file: " << input_file << std::endl;
+    std::cout << "output_file: " << output_file << std::endl;
+    std::cout << "name: " << name << std::endl;
+    std::cout << "display_results: " << (display_results ? "true" : "false") << std::endl;
+    std::cout << "show_progress: " << (show_progress ? "true" : "false") << std::endl;
+    std::cout << "\n--- ACO ---" << std::endl;
+    std::cout << "numOfAnts: " << numOfAnts << std::endl;
+    std::cout << "numOfIterations: " << numOfIterations << std::endl;
+    std::cout << "alpha: " << alpha << std::endl;
+    std::cout << "beta: " << beta << std::endl;
+    std::cout << "method: " << method << std::endl;
+    std::cout << "pheromoneQ: " << pheromoneQ << std::endl;
+    std::cout << "pheromoneEvaporation: " << pheromoneEvaporation << std::endl;
+    std::cout << "==========================" << std::endl;
 }

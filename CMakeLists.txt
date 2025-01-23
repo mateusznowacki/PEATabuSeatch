@@ -18,4 +18,5 @@ add_executable(PEATabuSearch
         service/pea12/NearestNeighbour.cpp
         service/pea12/RandomSolver.cpp
         service/TabuSearch.cpp
+        service/AntColonyOptimization.cpp
 )
